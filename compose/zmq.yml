@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  zmq-rep:
+    build:
+      context: ../
+      dockerfile: ZMQ/Dockerfile
+    container_name: zmq-rep
+    command: ["python", "serverzmq.py"]
+    volumes:
+      - ../ZMQ:/app:rw
+  zmq-req:
+    build:
+      context: ../
+      dockerfile: ZMQ/Dockerfile
+    container_name: zmq-req
+    depends_on:
+      - zmq-rep
+    command: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ../ZMQ:/app:rw
+  zmq-pub:
+    build:
+      context: ../
+      dockerfile: ZMQ/Dockerfile
+    container_name: zmq-pub
+    command: ["python", "pubzmq.py"]
+    volumes:
+      - ../ZMQ:/app:rw
+  zmq-sub:
+    build:
+      context: ../
+      dockerfile: ZMQ/Dockerfile
+    container_name: zmq-sub
+    depends_on:
+      - zmq-pub
+    command: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ../ZMQ:/app:rw
+  zmq-push:
+    build:
+      context: ../
+      dockerfile: ZMQ/Dockerfile
+    container_name: zmq-push
+    command: ["python", "pushzmq.py"]
+    volumes:
+      - ../ZMQ:/app:rw
+  zmq-pull:
+    build:
+      context: ../
+      dockerfile: ZMQ/Dockerfile
+    container_name: zmq-pull
+    depends_on:
+      - zmq-push
+    command: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ../ZMQ:/app:rw

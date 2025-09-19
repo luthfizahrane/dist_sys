@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  upcall-server:
+    build:
+      context: ../
+      dockerfile: upcall/Dockerfile
+    container_name: upcall-server
+    volumes:
+      - ../upcall:/app:rw
+  upcall-client:
+    build:
+      context: ../
+      dockerfile: upcall/Dockerfile
+    container_name: upcall-client
+    depends_on:
+      - upcall-server
+    volumes:
+      - ../upcall:/app:rw
+    command: ["tail", "-f", "/dev/null"]

@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    container_name: mqtt-broker
+    restart: unless-stopped
+    volumes:
+      - ../MQTT/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+  mqtt-pub:
+    build:
+      context: ../
+      dockerfile: MQTT/Dockerfile
+    container_name: mqtt-publisher
+    depends_on:
+      - mqtt-broker
+    volumes:
+      - ../MQTT:/app:rw
+    command: ["tail", "-f", "/dev/null"]
+  mqtt-sub:
+    build:
+      context: ../
+      dockerfile: MQTT/Dockerfile
+    container_name: mqtt-subscriber
+    depends_on:
+      - mqtt-broker
+    volumes:
+      - ../MQTT:/app:rw
+    command: ["tail", "-f", "/dev/null"]

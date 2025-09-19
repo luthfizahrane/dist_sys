@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  multiprocess-demo:
+    build:
+      context: ../
+      dockerfile: code_process/Dockerfile
+    container_name: multiprocess-demo
+    command: ["python", "multiprcs.py"]
+    volumes:
+      - ../code_process:/app/code_process:rw
+  multithread-demo:
+    build:
+      context: ../
+      dockerfile: code_process/Dockerfile
+    container_name: multithread-demo
+    command: ["python", "multithreads.py"]
+    volumes:
+      - ../code_process:/app/code_process:rw
+  ice-server:
+    build:
+      context: ../
+      dockerfile: code_process/Dockerfile
+    container_name: ice-server
+    command: ["sh", "-c", "test -f Demo_ice.py || slice2py Demo.ice; python ice_server.py"]
+    volumes:
+      - ../code_process:/app/code_process:rw
+  ice-client:
+    build:
+      context: ../
+      dockerfile: code_process/Dockerfile
+    container_name: ice-client
+    depends_on:
+      - ice-server
+    command: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ../code_process:/app/code_process:rw

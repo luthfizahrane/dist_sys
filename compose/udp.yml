@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  udp-server:
+    build:
+      context: ../
+      dockerfile: oneway/Dockerfile
+    container_name: udp-server
+    volumes:
+      - ../oneway:/app:rw
+  udp-client:
+    build:
+      context: ../
+      dockerfile: oneway/Dockerfile
+    container_name: udp-client
+    depends_on:
+      - udp-server
+    volumes:
+      - ../oneway:/app:rw
+    command: ["tail", "-f", "/dev/null"]

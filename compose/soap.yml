@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  soap-server:
+    build:
+      context: ../
+      dockerfile: SOAP/Dockerfile
+    container_name: soap-server
+    volumes:
+      - ../SOAP:/app:rw
+    restart: unless-stopped
+  soap-client:
+    build:
+      context: ../
+      dockerfile: SOAP/Dockerfile
+    container_name: soap-client
+    depends_on:
+      - soap-server
+    volumes:
+      - ../SOAP:/app:rw
+    command: ["tail", "-f", "/dev/null"]

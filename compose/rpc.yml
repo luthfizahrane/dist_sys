@@ -1,0 +1,19 @@
+services:
+  rpc-server:
+    build:
+      context: ../
+      dockerfile: RPC/Dockerfile
+    container_name: rpc-server
+    volumes:
+      - ../RPC:/app:rw
+    restart: unless-stopped
+  rpc-client:
+    build:
+      context: ../
+      dockerfile: RPC/Dockerfile
+    container_name: rpc-client
+    depends_on:
+      - rpc-server
+    volumes:
+      - ../RPC:/app:rw
+    command: ["tail", "-f", "/dev/null"]

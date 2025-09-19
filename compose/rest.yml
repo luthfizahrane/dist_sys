@@ -1,0 +1,23 @@
+services:
+  rest-server:
+    build:
+      context: ../
+      dockerfile: REST/Dockerfile
+    container_name: rest-server
+    volumes:
+      - ../REST:/app:rw
+    restart: unless-stopped
+  rest-client:
+    build:
+      context: ../
+      dockerfile: REST/Dockerfile
+    container_name: rest-client
+    depends_on:
+      - rest-server
+    tty: true
+    stdin_open: true
+    volumes:
+      - ../REST:/app:rw
+    command: ["tail", "-f", "/dev/null"]
+    # Example manual test (run manually, not auto):
+    # docker compose -f compose/rest.yml exec rest-client curl -s 'http://rest-server:5151/add?a=10&b=5'
