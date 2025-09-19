@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package distrib_sys;
+
+// User service definition
+service UserService {
+  // Unary RPC - Single request, single response
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+  rpc CreateUser(CreateUserRequest) returns (UserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  
+  // Server streaming RPC - Single request, stream of responses
+  rpc ListUsers(ListUsersRequest) returns (stream UserResponse);
+  
+  // Client streaming RPC - Stream of requests, single response
+  rpc CreateUsers(stream CreateUserRequest) returns (CreateUsersResponse);
+  
+  // Bidirectional streaming RPC - Stream of requests, stream of responses
+  rpc ChatStream(stream ChatMessage) returns (stream ChatMessage);
+}
+
+// Message definitions
+message GetUserRequest {
+  int32 user_id = 1;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+}
+
+message UpdateUserRequest {
+  int32 user_id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message DeleteUserRequest {
+  int32 user_id = 1;
+}
+
+message ListUsersRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message UserResponse {
+  int32 user_id = 1;
+  string name = 2;
+  string email = 3;
+  string created_at = 4;
+}
+
+message DeleteUserResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message CreateUsersResponse {
+  int32 created_count = 1;
+  repeated UserResponse users = 2;
+}
+
+message ChatMessage {
+  string sender = 1;
+  string content = 2;
+  string timestamp = 3;
+  int32 user_id = 4;
+}
