@@ -1,0 +1,4 @@
+spyne==2.14.0
+zeep==4.2.1
+requests==2.32.3
+lxml==5.2.2
