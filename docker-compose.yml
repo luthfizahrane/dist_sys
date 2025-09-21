@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  # Redis for Pub/Sub messaging
+  redis:
+    image: redis:7-alpine
+    container_name: distrib_sys_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - distrib_net
+
+  # RabbitMQ for message queues
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: distrib_sys_rabbitmq
+    ports:
+      - "5672:5672"    # AMQP port
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - distrib_net
+
+  # HTTP/REST API Server
+  rest_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.rest
+    container_name: distrib_sys_rest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
+    environment:
+      - FLASK_ENV=development
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - distrib_net
+    restart: unless-stopped
+
+  # gRPC Server
+  grpc_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.grpc
+    container_name: distrib_sys_grpc
+    ports:
+      - "50051:50051"
+    networks:
+      - distrib_net
+    restart: unless-stopped
+
+  # WebSocket Server
+  websocket_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.websocket
+    container_name: distrib_sys_websocket
+    ports:
+      - "8765:8765"
+    networks:
+      - distrib_net
+    restart: unless-stopped
+
+  # TCP Socket Server
+  tcp_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.tcp
+    container_name: distrib_sys_tcp
+    ports:
+      - "9999:9999"
+    networks:
+      - distrib_net
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  distrib_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
